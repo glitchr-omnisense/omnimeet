@@ -1,7 +1,11 @@
-# glitchr/omnimeet
+# omniscient/omnimeet
 
 One contract for video meetings - **open a room and let someone in** - whatever carries the
 call: the two browsers themselves, or a conferencing service.
+
+Published as `omniscient/omnimeet` (formerly `glitchr/omnimeet`, which this package replaces: a
+`composer.json` that still requires the old name keeps resolving to this package, never both).
+`omniscient/` is the vendor of every family's core; the providers keep theirs (`omnimeet/direct`...).
 
 ```php
 $gateway = $registry->get('direct');                       // or 'group', a Jitsi instance: the same calls
@@ -54,7 +58,7 @@ call.
 ## Plain PHP
 
 ```sh
-composer require glitchr/omnimeet omnimeet/direct omnimeet/jitsi
+composer require omniscient/omnimeet omnimeet/direct omnimeet/jitsi
 ```
 
 ```php
@@ -104,7 +108,7 @@ docker compose up                              # the demo, in plain PHP: http://
 
 ## Responsibility
 
-`glitchr/omnimeet` and its `omnimeet/*` providers are independent, unofficial clients: none is
+`omniscient/omnimeet` and its `omnimeet/*` providers are independent, unofficial clients: none is
 affiliated with, endorsed by or sponsored by the services it reaches. Each service keeps its own
 terms (accounts and keys, rate limits, the instance's own rules), named with a link in the
 "Responsibility" section of the README of each provider that reaches one. The MIT licence covers

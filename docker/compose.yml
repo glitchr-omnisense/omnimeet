@@ -1,4 +1,4 @@
-# glitchr/omnimeet with every gateway package:
+# omniscient/omnimeet with every gateway package:
 #
 #   cp .env.dist .env                                          # a relay, a Jitsi instance, when you have them
 #   docker compose run --rm omnimeet gateways                  # which gateways are installed and configured, what each is and does
@@ -19,7 +19,7 @@ name: omnimeet-harness
 services:
   omnimeet:
     build: .
-    image: glitchr/omnimeet-harness
+    image: omniscient/omnimeet-harness
     command: serve
     env_file:
       - path: .env

@@ -1,5 +1,5 @@
 {
-    "name": "glitchr/omnimeet",
+    "name": "omniscient/omnimeet",
     "type": "library",
     "description": "Omnimeet: one contract for video meetings - open a room, let a participant in (a JavaScript engine and its options, an embedded frame, or an address), close it, read its state, hear the provider's callbacks - whatever carries the call: the two browsers themselves (omnimeet/direct) or a conferencing service (omnimeet/jitsi); and its Symfony bundle.",
     "keywords": [
@@ -27,6 +27,9 @@
         "symfony/config": "^6.4|^7.0|^8.0",
         "symfony/dependency-injection": "^6.4|^7.0|^8.0",
         "symfony/http-kernel": "^6.4|^7.0|^8.0"
+    },
+    "replace": {
+        "glitchr/omnimeet": "self.version"
     },
     "suggest": {
         "omnimeet/direct": "From browser to browser: two people, end to end, no third party - the default gateway, no key",

@@ -6,7 +6,7 @@ order: 1
 # Installation and a first meeting
 
 ```sh
-composer require glitchr/omnimeet omnimeet/direct     # from browser to browser: no key, no third party
+composer require omniscient/omnimeet omnimeet/direct  # from browser to browser: no key, no third party
 composer require omnimeet/jitsi                       # a Jitsi Meet instance
 ```
 

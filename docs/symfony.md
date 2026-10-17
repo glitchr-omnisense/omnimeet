@@ -7,7 +7,7 @@ order: 4
 
 Omnimeet runs without a framework ([installation](installation.md)); in a Symfony application its
 bundle does the wiring. Its components - `symfony/config`, `symfony/dependency-injection`,
-`symfony/http-kernel` - are not required by `glitchr/omnimeet`: the application has them, and
+`symfony/http-kernel` - are not required by `omniscient/omnimeet`: the application has them, and
 nothing of them is loaded outside Symfony.
 
 Register `Omnimeet\Bridge\Symfony\OmnimeetBundle` (no Flex recipe):
