@@ -1,5 +1,5 @@
 {
-    "name": "omniscient/omnimeet",
+    "name": "omnisense/omnimeet",
     "type": "library",
     "description": "Omnimeet: one contract for video meetings - open a room, let a participant in (a JavaScript engine and its options, an embedded frame, or an address), close it, read its state, hear the provider's callbacks - whatever carries the call: the two browsers themselves (omnimeet/direct) or a conferencing service (omnimeet/jitsi); and its Symfony bundle.",
     "keywords": [
@@ -11,7 +11,7 @@
         "jitsi",
         "omnimeet"
     ],
-    "homepage": "https://github.com/glitchr-studio/omnimeet",
+    "homepage": "https://github.com/glitchr-omnisense/omnimeet",
     "license": "MIT",
     "authors": [
         {
@@ -29,6 +29,7 @@
         "symfony/http-kernel": "^6.4|^7.0|^8.0"
     },
     "replace": {
+        "omniscient/omnimeet": "self.version",
         "glitchr/omnimeet": "self.version"
     },
     "suggest": {

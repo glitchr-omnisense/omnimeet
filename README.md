@@ -1,11 +1,11 @@
-# omniscient/omnimeet
+# omnisense/omnimeet
 
 One contract for video meetings - **open a room and let someone in** - whatever carries the
 call: the two browsers themselves, or a conferencing service.
 
-Published as `omniscient/omnimeet` (formerly `glitchr/omnimeet`, which this package replaces: a
+Published as `omnisense/omnimeet` (formerly `glitchr/omnimeet`, which this package replaces: a
 `composer.json` that still requires the old name keeps resolving to this package, never both).
-`omniscient/` is the vendor of every family's core; the providers keep theirs (`omnimeet/direct`...).
+`omnisense/` is the vendor of every family's core; the providers keep theirs (`omnimeet/direct`...).
 
 ```php
 $gateway = $registry->get('direct');                       // or 'group', a Jitsi instance: the same calls
@@ -29,8 +29,8 @@ is a package of its own:
 
 | Package | The call | Third party |
 |---|---|---|
-| [`omnimeet/direct`](https://github.com/glitchr-studio/omnimeet-direct) | from browser to browser (WebRTC): two people, encrypted end to end, nothing recorded; the application relays the handshake, a TURN relay of your own when a network forbids the direct way | none |
-| [`omnimeet/jitsi`](https://github.com/glitchr-studio/omnimeet-jitsi) | on a Jitsi Meet instance - yours, a public one, Jitsi as a Service: several people, an embedded frame driven from the page, a token per participant | the instance |
+| [`omnimeet/direct`](https://github.com/glitchr-omnisense/omnimeet-direct) | from browser to browser (WebRTC): two people, encrypted end to end, nothing recorded; the application relays the handshake, a TURN relay of your own when a network forbids the direct way | none |
+| [`omnimeet/jitsi`](https://github.com/glitchr-omnisense/omnimeet-jitsi) | on a Jitsi Meet instance - yours, a public one, Jitsi as a Service: several people, an embedded frame driven from the page, a token per participant | the instance |
 
 ## What a gateway is, and is not
 
@@ -58,7 +58,7 @@ call.
 ## Plain PHP
 
 ```sh
-composer require omniscient/omnimeet omnimeet/direct omnimeet/jitsi
+composer require omnisense/omnimeet omnimeet/direct omnimeet/jitsi
 ```
 
 ```php
@@ -92,7 +92,7 @@ omnimeet:
 public function __construct(GatewayInterface $direct, GatewayInterface $group) {}
 ```
 
-[`omnibase/office`](https://github.com/glitchr-studio/omnibase-office), a professional practice's
+[`omnibase/office`](https://github.com/glitchr-omnisense/omnibase-office), a professional practice's
 site, is built on it: the room, its waiting room and its pages are office's, the call a gateway's.
 
 ## Docker: every gateway, and a call between two tabs
@@ -108,7 +108,7 @@ docker compose up                              # the demo, in plain PHP: http://
 
 ## Responsibility
 
-`omniscient/omnimeet` and its `omnimeet/*` providers are independent, unofficial clients: none is
+`omnisense/omnimeet` and its `omnimeet/*` providers are independent, unofficial clients: none is
 affiliated with, endorsed by or sponsored by the services it reaches. Each service keeps its own
 terms (accounts and keys, rate limits, the instance's own rules), named with a link in the
 "Responsibility" section of the README of each provider that reaches one. The MIT licence covers

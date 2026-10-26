@@ -7,7 +7,7 @@ order: 4
 
 Omnimeet runs without a framework ([installation](installation.md)); in a Symfony application its
 bundle does the wiring. Its components - `symfony/config`, `symfony/dependency-injection`,
-`symfony/http-kernel` - are not required by `omniscient/omnimeet`: the application has them, and
+`symfony/http-kernel` - are not required by `omnisense/omnimeet`: the application has them, and
 nothing of them is loaded outside Symfony.
 
 Register `Omnimeet\Bridge\Symfony\OmnimeetBundle` (no Flex recipe):
@@ -77,6 +77,6 @@ final class MeetingController extends AbstractController
 }
 ```
 
-[`omnibase/office`](https://github.com/glitchr-studio/omnibase-office) does all of this for a
+[`omnibase/office`](https://github.com/glitchr-omnisense/omnibase-office) does all of this for a
 professional practice: its `Visio\Rooms` opens a room on `office.visio.gateway`, its page renders
 the `Access`, its `SignalRepository` is the direct gateway's store.

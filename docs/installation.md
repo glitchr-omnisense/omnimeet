@@ -6,7 +6,7 @@ order: 1
 # Installation and a first meeting
 
 ```sh
-composer require omniscient/omnimeet omnimeet/direct  # from browser to browser: no key, no third party
+composer require omnisense/omnimeet omnimeet/direct  # from browser to browser: no key, no third party
 composer require omnimeet/jitsi                       # a Jitsi Meet instance
 ```
 
@@ -73,7 +73,7 @@ That is all there is to it:
 
 - a **factory** per gateway package (`DirectGatewayFactory`, `JitsiGatewayFactory`), which takes
   what its gateway works with - for the direct one, the store its handshake waits in
-  ([omnimeet/direct](https://github.com/glitchr-studio/omnimeet-direct));
+  ([omnimeet/direct](https://github.com/glitchr-omnisense/omnimeet-direct));
 - the **registry**, built by hand from the factories and the gateways' options, by name;
 - the **gateways** it gives, each answering the same five questions: `open()`, `join()`,
   `close()`, `fetch()`, `notify()` ([gateways](gateways.md)).
@@ -126,7 +126,7 @@ role, an opaque identifier and a name if you give one. Never an account, never a
   registry from `config/packages/omnimeet.yaml` and makes each gateway injectable by its name:
   see [Symfony](symfony.md). Its components (`symfony/config`, `symfony/dependency-injection`,
   `symfony/http-kernel`) are not required by this package: a Symfony application has them.
-  [`omnibase/office`](https://github.com/glitchr-studio/omnibase-office) is built on it: its
+  [`omnibase/office`](https://github.com/glitchr-omnisense/omnibase-office) is built on it: its
   video room keeps the room, the waiting room and the pages, and asks a gateway for the rest.
 - **Any other**: build the `Registry` once, where the framework builds its services (a service
   provider, a container definition), as the script above does.

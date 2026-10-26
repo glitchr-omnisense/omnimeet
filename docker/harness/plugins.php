@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Every gateway package: its slug (omnimeet/<slug>, github.com/glitchr-studio/omnimeet-<slug>),
+ * Every gateway package: its slug (omnimeet/<slug>, github.com/glitchr-omnisense/omnimeet-<slug>),
  * its tests' namespace and its factory class.
  */
 return [
