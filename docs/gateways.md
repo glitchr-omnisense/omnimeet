@@ -1,6 +1,6 @@
 ---
 title: Gateways
-order: 3
+order: 30
 ---
 
 # Gateways
@@ -32,6 +32,67 @@ method is a shortcut for `execute(new Request\...)`. What a gateway does not do 
 
 A gateway does not decide who may enter, nor when, nor does it know who waits: that is the
 application's, on its own record of the meeting - the same whatever the gateway.
+
+## The contract, member by member
+
+`Omnimeet\GatewayInterface`:
+
+| Method | |
+|---|---|
+| `getName(): string`, `getTitle(): string` | the factory's name (`direct`, `jitsi`) and title (`Direct`, `Jitsi Meet`) |
+| `capabilities(): Capabilities` | what its meetings are ([Models](models.md#capabilities)) |
+| `supports(string $request): bool` | whether an action answers that request class; asked with a probe made without the request's constructor |
+| `execute(Request $request): Request` | the request, answered by the first action that supports it; `NotSupportedException` when none does, `ProviderException` when the action left it unanswered |
+| `open(Meeting): Meeting`, `join(Meeting, Participant): Access`, `close(Meeting): Meeting`, `fetch(Meeting): Meeting`, `notify(string $body, array $headers = []): Notification` | `execute()` with `Request\Open`, `Join`, `Close`, `Fetch`, `Notify` |
+
+`Omnimeet\Gateway` (`final`) is the implementation every factory builds: a name, a title, the
+capabilities and the actions.
+
+### Requests
+
+`Omnimeet\Request\Request` (abstract): `setResult()`, `getResult()`, `isAnswered()`. Each request is
+`final` with public readonly properties:
+
+| Request | Properties | Result |
+|---|---|---|
+| `Open` | `meeting` | `getMeeting()`: the meeting with its `reference` and `Status::OPEN`; the same key gives the same reference |
+| `Join` | `meeting`, `participant` | `getAccess()` |
+| `Close` | `meeting` | `getMeeting()`: `Status::ENDED` |
+| `Fetch` | `meeting` | `getMeeting()`: its `status` and who is `present` |
+| `Notify` | `body`, `headers` | `getNotification()`; `header($name)` reads a header whatever its case (the first value of a list) |
+
+`join()`, `close()` and `fetch()` need an opened meeting: `Meeting::reference()` throws
+`InvalidConfigException` for one without a reference.
+
+### The factory and its `Config`
+
+`Omnimeet\GatewayFactory` (abstract) has no constructor of its own - a gateway that needs something
+(a store, an HTTP client) takes it in its factory's constructor. `create(array $options = [])`:
+
+1. fills an `Omnimeet\Config` (an `ArrayObject`) with the options given, then the factory's defaults
+   (`populateConfig()`, through `Config::defaults()`) under them;
+2. checks `omnimeet.required_options`: one missing or empty (`null`, `''`, `[]`) is an
+   `InvalidConfigException` naming them all (`The "jitsi" gateway needs: domain.`);
+3. builds the client from `omnimeet.api` and the capabilities from `omnimeet.capabilities` (each
+   a value or a closure of the `Config`); no `Capabilities` is an `InvalidConfigException`;
+4. collects every `omnimeet.action.<name>` (a closure of the `Config` is called; one that gives
+   anything but an action - `null` - is left out), hands the client to the actions implementing
+   `ApiAwareInterface` (`ApiAwareTrait` checks its class), and returns a `Gateway`.
+
+`Config::get($key, $default)`, `validateNotEmpty($keys)`, and `list($key)`: a list option given as
+one comma-separated string (an environment variable) split into its values.
+
+### The registry
+
+`new Omnimeet\Registry(iterable $factories, array $config)`, `$config` the gateways by name
+(`['<name>' => ['factory' => '<factory name>', 'options' => [...]]]`):
+
+| Method | |
+|---|---|
+| `get(string $name): GatewayInterface` | built on first use, then kept; `No "x" gateway; configured: ...` and `No "y" factory for the "x" gateway; installed: ...` as `InvalidConfigException` |
+| `has($name)`, `names()`, `options($name)`, `factories()` | |
+| `create(string $name, array $overrides = [])` | a gateway built afresh, `$overrides` over its options; not kept |
+| `all()` | every gateway, built, by name |
 
 ## Rendering an Access
 

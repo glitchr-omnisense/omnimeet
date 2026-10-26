@@ -1,6 +1,6 @@
 ---
 title: Installation
-order: 1
+order: 10
 ---
 
 # Installation and a first meeting
@@ -10,7 +10,11 @@ composer require omnisense/omnimeet omnimeet/direct  # from browser to browser: 
 composer require omnimeet/jitsi                       # a Jitsi Meet instance
 ```
 
-PHP 8.2 or later.
+## Requirements
+
+- PHP 8.2 or later; `omnisense/omnimeet` requires nothing else, nor does `omnimeet/direct`.
+- `omnimeet/jitsi` suggests `ext-openssl`, for tokens signed with a private key (RS256: Jitsi as a
+  Service, or an instance that validates against a key server).
 
 Omnimeet needs no framework, and no library either: the core requires PHP alone, and so do the two
 gateway packages - neither calls anything (a direct meeting is carried by the two browsers, a Jitsi
@@ -67,7 +71,9 @@ group (Jitsi Meet): several people, through a third party
   (asks https://meet.example.org; the token lapses at 06:43)
 ```
 
-(as answered on 2026-10-05; nothing was called)
+(as answered on 2026-10-05, and the same again on 2026-10-26 with PHP 8.4.27 on the workspace's
+checkouts and no network - the references and the token's time change with each run; nothing was
+called)
 
 That is all there is to it:
 
@@ -128,6 +134,8 @@ role, an opaque identifier and a name if you give one. Never an account, never a
   `symfony/http-kernel`) are not required by this package: a Symfony application has them.
   [`omnibase/office`](https://github.com/glitchr-omnisense/omnibase-office) is built on it: its
   video room keeps the room, the waiting room and the pages, and asks a gateway for the rest.
+- **Laravel**: no bridge package exists; a service provider builds the registry once:
+  [Laravel](laravel.md).
 - **Any other**: build the `Registry` once, where the framework builds its services (a service
   provider, a container definition), as the script above does.
 
@@ -140,4 +148,5 @@ role, an opaque identifier and a name if you give one. Never an account, never a
 | `InvalidNotificationException` | a callback whose signature does not hold, or too old |
 | `ProviderException` | the provider refused or could not be reached |
 
-All implement `Omnimeet\Exception\OmnimeetException`.
+All implement `Omnimeet\Exception\OmnimeetException`; [Errors](errors.md) has each one's parent and
+where it is thrown.

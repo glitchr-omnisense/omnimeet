@@ -49,11 +49,16 @@ call.
 
 ## Documentation
 
+- [Overview: gateways and what each does](docs/index.md)
 - [Installation and a first meeting](docs/installation.md)
+- [Symfony](docs/symfony.md) and [Laravel](docs/laravel.md)
 - [Models](docs/models.md)
 - [Gateways: the contract, rendering an Access, writing one](docs/gateways.md)
-- [Symfony](docs/symfony.md)
+- [Configuration reference](docs/configuration.md)
+- [Errors](docs/errors.md)
+- [Testing](docs/testing.md)
 - [The Docker harness: the console, bare PHP, the demo](docs/harness.md)
+- [Verified, and not](docs/verified.md)
 
 ## Plain PHP
 

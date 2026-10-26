@@ -1,6 +1,6 @@
 ---
 title: Symfony
-order: 4
+order: 15
 ---
 
 # Symfony
@@ -37,6 +37,55 @@ omnimeet:
                 app_secret: '%env(default::JITSI_APP_SECRET)%'
 ```
 
+## The configuration tree
+
+As the bundle's `configure()` declares it (dumped with Symfony's `YamlReferenceDumper`, the dumper
+`config:dump-reference omnimeet` uses):
+
+```yaml
+omnimeet:
+
+    # The gateways, by name: a factory (direct, jitsi...) and its options.
+    gateways:
+
+        # Prototype
+        name:
+            factory:              ~ # Required
+            options:              []
+```
+
+| Key | Type | Default | |
+|---|---|---|---|
+| `gateways.<name>.factory` | string | required | `direct`, `jitsi`, or an application factory's `getName()` |
+| `gateways.<name>.options` | any | `[]` | handed whole to the factory's `create()` ([Configuration](configuration.md)) |
+
+## What the bundle registers
+
+| Service | | |
+|---|---|---|
+| `Omnimeet\Direct\DirectGatewayFactory`, `Omnimeet\Jitsi\JitsiGatewayFactory` | private, autowired, tagged `omnimeet.gateway_factory` | each when its package is installed |
+| `Omnimeet\Registry` | public | every service tagged `omnimeet.gateway_factory`, the configured `gateways` |
+| `omnimeet.gateway.<name>` | private | `Registry::get('<name>')`, autowired as `GatewayInterface $<name>` |
+
+Any service of the application implementing `Omnimeet\GatewayFactoryInterface` is tagged
+`omnimeet.gateway_factory` by autoconfiguration. The bundle defines no command, route, event or
+Twig function: the signal endpoints of the direct gateway, the page and its script are the
+application's.
+
+The services compiled for two gateways (`direct`, and `group` on `jitsi` with a domain) and a
+`SignalStoreInterface` service, then the registry's factories and the gateways' titles:
+
+```
+Omnimeet\Direct\DirectGatewayFactory
+Omnimeet\Jitsi\JitsiGatewayFactory
+Omnimeet\Registry
+direct, jitsi | Direct, Jitsi Meet
+```
+
+(run on 2026-10-26, Symfony 8 DependencyInjection, the workspace's checkouts)
+
+## Factories and what they are given
+
 Every `omnimeet/*` package installed registers its factory, **autowired**: what its constructor
 asks for is the application's service of that type. `omnimeet/direct` asks for a
 `SignalStoreInterface` - alias it to your store:
@@ -45,6 +94,10 @@ asks for is the application's service of that type. `omnimeet/direct` asks for a
 #[AsAlias(SignalStoreInterface::class)]
 final class SignalRepository extends ServiceEntityRepository implements SignalStoreInterface { /* ... */ }
 ```
+
+Without such a service the factory's argument is left out (it is nullable) and the handshake is
+kept in the PHP process's memory (`InMemorySignalStore`), which forgets it between two requests:
+under PHP-FPM a direct call then never connects.
 
 What is autowired:
 
