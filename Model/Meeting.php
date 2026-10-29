@@ -3,6 +3,7 @@
 namespace Omnimeet\Model;
 
 use Omnimeet\Exception\InvalidConfigException;
+use Omnimeet\Exception\InvalidModelException;
 
 /**
  * A meeting, as the application describes it - its own key, when it starts
@@ -28,10 +29,10 @@ final readonly class Meeting
         public array $present = [],
     ) {
         if ('' === $key) {
-            throw new \InvalidArgumentException('A meeting needs a key.');
+            throw new InvalidModelException('A meeting needs a key.');
         }
         if (null !== $startsAt && null !== $endsAt && $endsAt < $startsAt) {
-            throw new \InvalidArgumentException('A meeting cannot end before it starts.');
+            throw new InvalidModelException('A meeting cannot end before it starts.');
         }
     }
 

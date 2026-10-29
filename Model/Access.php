@@ -2,6 +2,8 @@
 
 namespace Omnimeet\Model;
 
+use Omnimeet\Exception\InvalidModelException;
+
 /**
  * How one participant enters one meeting - what Join answers, and what the
  * page renders. It is made for that participant at that moment (temporary
@@ -35,10 +37,10 @@ final readonly class Access
         public ?\DateTimeImmutable $expiresAt = null,
     ) {
         if (AccessKind::ENGINE === $kind && (null === $engine || null === $script)) {
-            throw new \InvalidArgumentException('An engine access names its script and its file.');
+            throw new InvalidModelException('An engine access names its script and its file.');
         }
         if (AccessKind::ENGINE !== $kind && (null === $url || '' === $url)) {
-            throw new \InvalidArgumentException('A frame or a link needs an address.');
+            throw new InvalidModelException('A frame or a link needs an address.');
         }
     }
 

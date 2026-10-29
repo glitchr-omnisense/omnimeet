@@ -8,6 +8,7 @@ order: 50
 ```
 Omnimeet\Exception\OmnimeetException (an interface, \Throwable)
 ├── InvalidConfigException         extends \LogicException             a gateway misconfigured, a meeting not opened
+├── InvalidModelException          extends \InvalidArgumentException   a model built with what it cannot hold
 ├── NotSupportedException          extends \LogicException             the gateway does not do that
 ├── ProviderException              extends \RuntimeException           the provider refused, or could not be reached
 │   └── InvalidNotificationException                                   a callback that is not the provider's
@@ -56,7 +57,15 @@ omnimeet/direct's `Signaling::send()`: no room or no sender, a type other than `
 `answer`, `candidate`, `bye`, a payload that is not JSON or is larger than 64 kB. Answer the page
 with a 400.
 
-## Not an `OmnimeetException`
+## `InvalidModelException`
 
-> [!WARNING]
-> Known defect: `OmnimeetException` says it is "every exception Omnimeet throws", but the models' constructors throw a plain `\InvalidArgumentException`: `Meeting` without a key or ending before it starts, `Participant` without an identifier, an `Access` of kind `ENGINE` without its script or a `FRAME`/`LINK` without an address.
+A model built with what it cannot hold, an `\InvalidArgumentException` too (a `catch` of it keeps
+working):
+
+| Message | Thrown by |
+|---|---|
+| `A meeting needs a key.` | `new Meeting('')` |
+| `A meeting cannot end before it starts.` | `new Meeting()` with `endsAt` before `startsAt` |
+| `A participant needs an identifier.` | `new Participant('')` |
+| `An engine access names its script and its file.` | `new Access(AccessKind::ENGINE)` without `engine` or `script` |
+| `A frame or a link needs an address.` | `new Access(AccessKind::FRAME)` or `LINK` without `url` |

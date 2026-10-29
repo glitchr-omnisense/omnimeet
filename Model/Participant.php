@@ -2,6 +2,8 @@
 
 namespace Omnimeet\Model;
 
+use Omnimeet\Exception\InvalidModelException;
+
 /**
  * Someone in a meeting, as little as a gateway needs: a role, the name
  * shown to the others, and an identifier that says nothing by itself -
@@ -22,7 +24,7 @@ final readonly class Participant
         public ?string $locale = null,
     ) {
         if ('' === $id) {
-            throw new \InvalidArgumentException('A participant needs an identifier.');
+            throw new InvalidModelException('A participant needs an identifier.');
         }
     }
 
