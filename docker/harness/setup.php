@@ -3,7 +3,9 @@
 /**
  * The harness's composer.json and phpunit.xml: this core from its checkout,
  * each gateway from a checkout under /omnimeet/plugins when there is one,
- * from GitHub (branch 1.x) otherwise; every package's tests in one run.
+ * from GitHub (branch 1.x) otherwise, omnisense/contracts the same way from
+ * /omnisense/contracts; every package's tests in one run.
+ * /harness/packages/<slug> links to each package's directory (for PHPStan).
  * Files are rewritten only when they change, so the entrypoint knows when
  * to install.
  */
@@ -17,19 +19,40 @@ $require = ['omnisense/omnimeet' => '1.x-dev'];
 $tests = ['Omnimeet\\Tests\\' => "$core/Tests/"];
 $suites = ['core' => "$core/Tests"];
 $gateways = [];
+@mkdir("$out/packages", 0775, true);
+
+// omnisense/contracts, the kernel the family builds on: its checkout under /omnisense/contracts
+// (OMNISENSE_CONTRACTS in .env) when there is one, its tests run beside the family's; GitHub otherwise.
+$contracts = '/omnisense/contracts';
+$meta = is_file("$contracts/composer.json") ? json_decode((string) file_get_contents("$contracts/composer.json"), true) : null;
+if (($meta['name'] ?? null) === 'omnisense/contracts') {
+    $repositories[] = ['type' => 'path', 'url' => $contracts, 'options' => ['symlink' => true, 'versions' => ['omnisense/contracts' => '1.x-dev']]];
+    $tests['Omnisense\\Contracts\\Tests\\'] = "$contracts/Tests/";
+    $suites['contracts'] = "$contracts/Tests";
+    $gateways['contracts'] = 'checkout';
+} else {
+    $repositories[] = ['type' => 'git', 'url' => 'https://github.com/glitchr-omnisense/contracts.git'];
+    $gateways['contracts'] = 'github';
+}
+$require['omnisense/contracts'] = '1.x-dev';
 foreach ($plugins as $slug => [$testsNs]) {
     $name = "omnimeet/$slug";
     $dir = "$local/$slug";
     $meta = is_file("$dir/composer.json") ? json_decode((string) file_get_contents("$dir/composer.json"), true) : null;
     if (($meta['name'] ?? null) === $name) {
         $repositories[] = ['type' => 'path', 'url' => $dir, 'options' => ['symlink' => true, 'versions' => [$name => '1.x-dev']]];
-        $testDir = "$dir/Tests";
+        $packageDir = $dir;
         $gateways[$slug] = 'checkout';
     } else {
         // A plain git clone over HTTPS: no GitHub API (anonymous calls are rate limited), no ssh in the image.
         $repositories[] = ['type' => 'git', 'url' => "https://github.com/glitchr-omnisense/omnimeet-$slug.git"];
-        $testDir = "$out/vendor/omnimeet/$slug/Tests";
+        $packageDir = "$out/vendor/omnimeet/$slug";
         $gateways[$slug] = 'github';
+    }
+    $testDir = "$packageDir/Tests";
+    if (!is_link("$out/packages/$slug") || readlink("$out/packages/$slug") !== $packageDir) {
+        @unlink("$out/packages/$slug");
+        symlink($packageDir, "$out/packages/$slug");
     }
     $require[$name] = '1.x-dev';
     $tests[$testsNs] = $testDir.'/';
@@ -48,9 +71,12 @@ $composer = [
         'symfony/console' => '^7.0|^8.0',
     ],
     'require-dev' => [
+        'phpstan/phpstan' => '^2.1',
         'phpunit/phpunit' => '^11.0',
         'symfony/config' => '^7.0|^8.0',
         'symfony/dependency-injection' => '^7.0|^8.0',
+        // omnisense/contracts' tests record answers over Symfony's MockHttpClient.
+        'symfony/http-client' => '^7.0|^8.0',
         'symfony/http-kernel' => '^7.0|^8.0',
     ],
     'autoload' => ['psr-4' => ['Omnimeet\\Harness\\' => "$core/docker/harness/src/"]],

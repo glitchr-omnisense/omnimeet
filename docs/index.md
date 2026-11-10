@@ -65,6 +65,7 @@ The capabilities are what each gateway's `supports()` answers (probed in the
 - [Gateways](gateways.md): the contract, the factory and the registry, rendering an `Access`, the
   state of a meeting, callbacks, writing a gateway.
 - [Configuration reference](configuration.md): the registry, the bundle, every gateway's options.
+- [Usage policies](policies.md): what each gateway's terms allow, a site's tightening, the guard.
 - [Errors](errors.md).
 - [Testing](testing.md).
 - [The Docker harness](harness.md): the console, bare PHP, the demo between two tabs.

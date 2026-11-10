@@ -1,7 +1,7 @@
 #!/bin/sh
 # Composes the harness (this core + every gateway), installs it when it
 # changed, then runs the command: the console by default, "test" for PHPUnit,
-# "bare" for the script that uses the packages with no bundle, no container
+# "phpstan" for PHPStan on each package, "bare" for the script that uses the packages with no bundle, no container
 # and no console, "serve" for the demo page (PHP's own web server, no
 # framework), "composer ..." or "sh" as they are.
 set -e
@@ -14,6 +14,14 @@ elif [ composer.json -nt composer.lock ]; then
 fi
 case "${1:-}" in
     test) shift; exec vendor/bin/phpunit "$@" ;;
+    phpstan)
+        status=0
+        for dir in /omnimeet/core /harness/packages/*; do
+            [ -f "$dir/phpstan.neon" ] || continue
+            echo "== $dir"
+            vendor/bin/phpstan analyse --no-progress --memory-limit=1G -c "$dir/phpstan.neon" --autoload-file=/harness/vendor/autoload.php "$dir" || status=1
+        done
+        exit $status ;;
     bare) shift; exec php /omnimeet/core/docker/harness/bin/bare "$@" ;;
     serve) echo "The demo: http://localhost:${OMNIMEET_PORT:-8799}/"; exec php -S 0.0.0.0:8799 /omnimeet/core/docker/harness/public/index.php ;;
     composer|sh|php) exec "$@" ;;

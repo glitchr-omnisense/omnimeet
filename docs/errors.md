@@ -51,6 +51,14 @@ unanswered. Neither gateway calls a provider over the network today, so no other
 from now (`The callback is too old.`); a signed body that is not a JaaS event (no `eventType`).
 Answer such a callback with a 4xx.
 
+## `UsageLimitReachedException`, `InvalidPolicyException`, `UsageNotPermitted`
+
+`UsageLimitReachedException` (an `OmnimeetException`, omnisense/contracts' `UsageLimitReached`):
+a guarded gateway's request over a limit of its policy, or while the provider's wait lasts; nothing
+was done, `retryAfter` says when to ask again - omnimeet never asks again by itself.
+`InvalidPolicyException` and `UsageNotPermitted` (both an `InvalidConfigException` of the kernel):
+a site's policy looser than the gateway's, a use its terms forbid ([Usage policies](policies.md)).
+
 ## `InvalidSignalException`
 
 omnimeet/direct's `Signaling::send()`: no room or no sender, a type other than `hello`, `offer`,

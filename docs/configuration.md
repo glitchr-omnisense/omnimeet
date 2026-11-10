@@ -8,14 +8,19 @@ order: 40
 ## The registry
 
 ```php
-new Omnimeet\Registry(iterable $factories, array $config);
-// $config: ['<name>' => ['factory' => '<factory name>', 'options' => [...]], ...]
+new Omnimeet\Registry(iterable $factories, array $config, ?RateLimiterInterface $limiter = null);
+// $config: ['<name>' => ['factory' => '<factory name>', 'options' => [...], 'policy' => [...], 'usage' => [...]], ...]
 ```
 
 Each gateway: `factory` (string, required: a factory's `getName()`) and `options` (array, `[]` by
 default, handed to the factory's `create()` on first use; the gateway is then kept). Nothing is
 checked before a gateway is asked for. The Symfony bundle's tree (`omnimeet.gateways.<name>.factory`,
 `.options`) is the same ([Symfony](symfony.md#the-configuration-tree)).
+
+`policy` (the site's tightening of the gateway's usage policy, never looser) and `usage` (what the
+site is: `commercial`, `open_source`, `contract`) are optional, beside `options` or in them; the
+limiter (omnisense/contracts' `RateLimiterInterface`, in memory by default) is where every gateway
+counts - shared across processes when it is ([Usage policies](policies.md)).
 
 ## `direct`
 

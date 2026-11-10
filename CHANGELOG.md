@@ -2,6 +2,28 @@
 
 ## [Unreleased]
 
+### Added
+
+- omnisense/omnimeet on [omnisense/contracts](https://github.com/glitchr-omnisense/contracts), the
+  kernel of the omni families, with usage policies; the public API unchanged. `Config`,
+  `GatewayFactory` (`populateConfig()` as before) and `Registry` are thin subclasses of the
+  kernel's (prefix `omnimeet`); `GatewayInterface` extends its `ProviderInterface`,
+  `GatewayFactoryInterface` its `ProviderFactoryInterface`, `Model\Capabilities` implements its
+  `CapabilitiesInterface` (`contracts()`: the operations the gateway answers; `policy()`);
+  `OmnimeetException` extends its `ExceptionInterface`, `InvalidConfigException` its
+  `InvalidConfigException` (an `\InvalidArgumentException`, a `\LogicException` as before).
+- A factory declares its policy (`omnimeet.policy`: its `policy.json`, a `UsagePolicy` or a closure
+  of the Config); `Registry::policy()`, `policies()`, `guard()` and `guarded()` (the gateway
+  behind its guard: a request over a limit refused before its action runs,
+  `Exception\UsageLimitReachedException`; a callback never); `policy` and `usage` beside a
+  gateway's options; a shared `RateLimiterInterface` as the registry's third argument; the bundle
+  takes `policy`, `usage` and `limiter`. Nothing retries a request: an open is never replayed.
+- `Testing\BareTestCase` (the kernel's bare check, the core added); `Tests/LoadAllTest`.
+- PHPStan at level max on each package (`phpstan.neon`, the errors there when it came in in
+  `phpstan-baseline.neon`); the harness runs it (`phpstan`), installs omnisense/contracts from its
+  checkout (`OMNISENSE_CONTRACTS`) or GitHub and runs its tests, names its entrypoint and uses
+  Docker's default bridge.
+
 ### Fixed
 
 - The models' constructors throw an `InvalidModelException` (an `OmnimeetException`, and an

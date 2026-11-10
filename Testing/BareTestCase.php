@@ -1,0 +1,34 @@
+<?php
+
+namespace Omnimeet\Testing;
+
+use Omnimeet\Registry;
+
+/**
+ * omnisense/contracts' bare check for an omnimeet package: each of its
+ * classes loaded in a PHP process of its own, with nothing from outside but
+ * omnisense/contracts, omnisense/omnimeet's core and what the package
+ * requires - no framework, no application. A gateway package's test names
+ * its entry class and the packages it requires:
+ *
+ *   final class LoadAllTest extends \Omnimeet\Testing\BareTestCase
+ *   {
+ *       protected static function entryClass(): string { return JitsiGatewayFactory::class; }
+ *       protected static function requiredPackages(): array { return []; }
+ *   }
+ *
+ * A class over a suggested package says so ("@suggested <package>") and is
+ * not loaded: the core's Symfony bundle.
+ *
+ * @suggested phpunit/phpunit (test support: loaded by a package's tests only)
+ */
+abstract class BareTestCase extends \Omnisense\Contracts\Testing\BareTestCase
+{
+    /** @var non-empty-string */
+    protected const AUTOLOAD_ENV = 'OMNIMEET_AUTOLOAD';
+
+    protected static function coreDirs(): array
+    {
+        return [...parent::coreDirs(), self::dirOf(Registry::class)];
+    }
+}

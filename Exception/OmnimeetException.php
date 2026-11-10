@@ -2,7 +2,9 @@
 
 namespace Omnimeet\Exception;
 
-/** Every exception Omnimeet throws. */
-interface OmnimeetException extends \Throwable
+use Omnisense\Contracts\Exception\ExceptionInterface;
+
+/** Every exception Omnimeet throws: omnisense/contracts' ExceptionInterface too. */
+interface OmnimeetException extends ExceptionInterface
 {
 }

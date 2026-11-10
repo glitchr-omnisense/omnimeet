@@ -8,6 +8,7 @@ use Omnimeet\Model\Meeting;
 use Omnimeet\Model\Notification;
 use Omnimeet\Model\Participant;
 use Omnimeet\Request\Request;
+use Omnisense\Contracts\Provider\ProviderInterface;
 
 /**
  * One way to hold a meeting, configured - the two browsers themselves, or a
@@ -18,14 +19,17 @@ use Omnimeet\Request\Request;
  *
  * A gateway opens a room and lets someone in. It does not decide who may
  * enter, nor when: the application did, before asking.
+ *
+ * It is an omnisense/contracts provider: capabilities() also gives the
+ * operations it answers and its usage policy.
  */
-interface GatewayInterface
+interface GatewayInterface extends ProviderInterface
 {
     public function getName(): string;
 
     public function getTitle(): string;
 
-    /** What its meetings are: how many people, through whom, with what. */
+    /** What its meetings are: how many people, through whom, with what; the operations it answers, its usage policy. */
     public function capabilities(): Capabilities;
 
     /** @param class-string<Request> $request */

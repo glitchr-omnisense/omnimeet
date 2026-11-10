@@ -6,36 +6,25 @@ use Omnimeet\Exception\InvalidConfigException;
 
 /**
  * A gateway's configuration while its factory builds it: the options given,
- * the factory's defaults under them, and the keys that must be filled.
- *
- * @extends \ArrayObject<string, mixed>
+ * the factory's defaults under them, and the keys that must be filled -
+ * omnisense/contracts' Config, with omnimeet's prefix ("omnimeet.factory_name",
+ * "omnimeet.backoff"...) and its InvalidConfigException. Every gateway takes
+ * two options besides its own: "policy" (the site's tightening of its usage
+ * policy) and "usage" (what the site says of itself: commercial, open_source,
+ * contract).
  */
-final class Config extends \ArrayObject
+final class Config extends \Omnisense\Contracts\Provider\Config
 {
-    /** Sets each key not set yet. */
-    public function defaults(array $defaults): self
-    {
-        foreach ($defaults as $key => $value) {
-            if (!$this->offsetExists($key)) {
-                $this[$key] = $value;
-            }
-        }
+    /** @var string */
+    public const PREFIX = 'omnimeet';
 
-        return $this;
-    }
-
-    /** @param string[] $keys */
+    /** @param list<string> $keys */
     public function validateNotEmpty(array $keys): void
     {
         $missing = array_values(array_filter($keys, fn (string $key) => !isset($this[$key]) || '' === $this[$key] || [] === $this[$key]));
         if ($missing) {
-            throw new InvalidConfigException(\sprintf('The "%s" gateway needs: %s.', $this['omnimeet.factory_name'] ?? '?', implode(', ', $missing)));
+            throw new InvalidConfigException(\sprintf('The "%s" gateway needs: %s.', $this->string('omnimeet.factory_name') ?? '?', implode(', ', $missing)));
         }
-    }
-
-    public function get(string $key, mixed $default = null): mixed
-    {
-        return $this->offsetExists($key) ? $this[$key] : $default;
     }
 
     /**
@@ -48,7 +37,7 @@ final class Config extends \ArrayObject
     {
         $list = [];
         foreach ((array) $this->get($key, []) as $value) {
-            foreach (explode(',', (string) $value) as $one) {
+            foreach (explode(',', \is_scalar($value) ? (string) $value : '') as $one) {
                 if ('' !== trim($one)) {
                     $list[] = trim($one);
                 }
@@ -56,5 +45,10 @@ final class Config extends \ArrayObject
         }
 
         return $list;
+    }
+
+    protected function invalid(string $message): \Throwable
+    {
+        return new InvalidConfigException($message);
     }
 }

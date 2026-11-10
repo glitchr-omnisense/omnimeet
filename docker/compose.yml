@@ -8,19 +8,28 @@
 #   docker compose run --rm omnimeet handshake                 # direct: a whole handshake, message by message, then closed
 #   docker compose run --rm omnimeet notify jitsi event.json --signature "t=...,v1=..."
 #   docker compose run --rm omnimeet bare                      # plain PHP: no bundle, no container, and what PHP loaded
-#   docker compose run --rm omnimeet test                      # every package's tests
+#   docker compose run --rm omnimeet test                      # every package's tests (omnisense/contracts' too)
+#   docker compose run --rm omnimeet phpstan                   # PHPStan, each package at the highest level
 #   docker compose up                                          # the demo, http://localhost:8799/ : a call between two tabs, in plain PHP
 #
 # Gateways come from GitHub (branch 1.x) unless their checkout sits under
 # OMNIMEET_PLUGINS (set it to ../.. in .env when this core sits in the
 # workspace beside them): then that checkout is what runs.
+# omnisense/contracts likewise: its checkout under OMNISENSE_CONTRACTS
+# (../../../omnisense-contracts in .env when it sits beside the family's
+# folder), its tests run with the family's; GitHub otherwise.
 name: omnimeet-harness
 
 services:
   omnimeet:
     build: .
     image: omnisense/omnimeet-harness
+    # The image may be another family's harness tagged (PHP 8.4 with Composer): the entrypoint is
+    # named here, not taken from the image.
+    entrypoint: ["/omnimeet/core/docker/entrypoint.sh"]
     command: serve
+    # One service: Docker's default bridge, no network of its own to create.
+    network_mode: bridge
     env_file:
       - path: .env
         required: false
@@ -29,6 +38,7 @@ services:
     volumes:
       - ..:/omnimeet/core
       - ${OMNIMEET_PLUGINS:-./plugins}:/omnimeet/plugins:ro
+      - ${OMNISENSE_CONTRACTS:-./contracts}:/omnisense/contracts:ro
       - harness:/harness
 
 volumes:

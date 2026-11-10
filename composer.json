@@ -1,7 +1,7 @@
 {
     "name": "omnisense/omnimeet",
     "type": "library",
-    "description": "Omnimeet: one contract for video meetings - open a room, let a participant in (a JavaScript engine and its options, an embedded frame, or an address), close it, read its state, hear the provider's callbacks - whatever carries the call: the two browsers themselves (omnimeet/direct) or a conferencing service (omnimeet/jitsi); and its Symfony bundle.",
+    "description": "Omnimeet: one contract for video meetings - open a room, let a participant in (a JavaScript engine and its options, an embedded frame, or an address), close it, read its state, hear the provider's callbacks - whatever carries the call: the two browsers themselves (omnimeet/direct) or a conferencing service (omnimeet/jitsi) - each gateway with its usage policy (omnisense/contracts: what its terms allow, its limits, enforced by a guard); and its Symfony bundle.",
     "keywords": [
         "video",
         "meeting",
@@ -9,7 +9,8 @@
         "webrtc",
         "teleconsultation",
         "jitsi",
-        "omnimeet"
+        "omnimeet",
+        "usage-policy"
     ],
     "homepage": "https://github.com/glitchr-omnisense/omnimeet",
     "license": "MIT",
@@ -20,9 +21,11 @@
         }
     ],
     "require": {
-        "php": ">=8.2"
+        "php": ">=8.2",
+        "omnisense/contracts": "^1.0@dev"
     },
     "require-dev": {
+        "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^11.0",
         "symfony/config": "^6.4|^7.0|^8.0",
         "symfony/dependency-injection": "^6.4|^7.0|^8.0",
@@ -35,6 +38,7 @@
     "suggest": {
         "omnimeet/direct": "From browser to browser: two people, end to end, no third party - the default gateway, no key",
         "omnimeet/jitsi": "Jitsi Meet: a self-hosted or hosted instance, a token per participant, an embedded frame, several people",
+        "phpunit/phpunit": "Omnimeet\\Testing\\BareTestCase: the bare check of a gateway package (omnisense/contracts' kernel)",
         "symfony/config": "In a Symfony application: the configuration of Omnimeet\\Bridge\\Symfony\\OmnimeetBundle",
         "symfony/dependency-injection": "In a Symfony application: the services of Omnimeet\\Bridge\\Symfony\\OmnimeetBundle",
         "symfony/http-kernel": "In a Symfony application: Omnimeet\\Bridge\\Symfony\\OmnimeetBundle itself"
@@ -51,6 +55,11 @@
     "autoload-dev": {
         "psr-4": {
             "Omnimeet\\Tests\\": "Tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-1.x": "1.x-dev"
         }
     },
     "config": {

@@ -55,6 +55,7 @@ call.
 - [Models](docs/models.md)
 - [Gateways: the contract, rendering an Access, writing one](docs/gateways.md)
 - [Configuration reference](docs/configuration.md)
+- [Usage policies: each gateway's terms as data, a site's tightening, the guard](docs/policies.md)
 - [Errors](docs/errors.md)
 - [Testing](docs/testing.md)
 - [The Docker harness: the console, bare PHP, the demo](docs/harness.md)
@@ -116,7 +117,8 @@ docker compose up                              # the demo, in plain PHP: http://
 `omnisense/omnimeet` and its `omnimeet/*` providers are independent, unofficial clients: none is
 affiliated with, endorsed by or sponsored by the services it reaches. Each service keeps its own
 terms (accounts and keys, rate limits, the instance's own rules), named with a link in the
-"Responsibility" section of the README of each provider that reaches one. The MIT licence covers
+"Responsibility" section of the README of each provider that reaches one, and declared as data in
+its `policy.json` ([Usage policies](docs/policies.md)). The MIT licence covers
 this code only and grants no right to any service or to its data.
 
 Whoever installs and runs these packages is responsible for complying with those terms, for
