@@ -38,7 +38,7 @@ final class StubFactory extends GatewayFactory
             'link' => false,
             'silent' => false,
             'omnimeet.capabilities' => static fn (Config $c) => new Capabilities(maxParticipants: 50, thirdParty: true, tokens: true, access: [$c['link'] ? AccessKind::LINK : AccessKind::FRAME]),
-            'omnimeet.api' => static fn (Config $c) => new StubApi((string) $c['host'], (bool) $c['link']),
+            'omnimeet.api' => static fn (Config $c) => new StubApi($c->string('host') ?? '', (bool) $c['link']),
             'omnimeet.action.open' => new StubAction(Open::class),
             'omnimeet.action.join' => new StubAction(Join::class),
             'omnimeet.action.close' => static fn (Config $c) => $c['silent'] ? null : new StubAction(Close::class),
@@ -101,7 +101,15 @@ final class StubAction implements ActionInterface, ApiAwareInterface
                 throw new InvalidNotificationException('stub', 'The signature does not hold.');
             }
             $event = json_decode($request->body, true);
-            $request->setResult(new Notification(Event::from($event['event']), $event['event'], $event['room'] ?? null, data: $event));
+            if (!\is_array($event) || !\is_string($event['event'] ?? null)) {
+                throw new InvalidNotificationException('stub', 'Not an event.');
+            }
+            $data = [];
+            foreach ($event as $key => $value) {
+                $data[(string) $key] = $value;
+            }
+            $room = $event['room'] ?? null;
+            $request->setResult(new Notification(Event::from($event['event']), $event['event'], \is_string($room) ? $room : null, data: $data));
         }
     }
 }

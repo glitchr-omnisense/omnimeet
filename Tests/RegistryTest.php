@@ -59,7 +59,7 @@ final class RegistryTest extends TestCase
         $other = $registry->create('consultation', ['host' => 'other.example.org']);
         $meeting = $other->open(new \Omnimeet\Model\Meeting('k'));
 
-        self::assertStringStartsWith('https://other.example.org/', $other->join($meeting, \Omnimeet\Model\Participant::guest('u'))->url);
+        self::assertStringStartsWith('https://other.example.org/', (string) $other->join($meeting, \Omnimeet\Model\Participant::guest('u'))->url);
         self::assertNotSame($other, $registry->get('consultation'), 'not kept: get() still gives the configured one');
     }
 }

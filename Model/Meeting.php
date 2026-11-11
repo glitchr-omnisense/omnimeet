@@ -36,7 +36,11 @@ final readonly class Meeting
         }
     }
 
-    /** The same meeting as its gateway has it now. */
+    /**
+     * The same meeting as its gateway has it now.
+     *
+     * @param list<Participant>|null $present
+     */
     public function with(?string $reference = null, ?Status $status = null, ?array $present = null): self
     {
         return new self($this->key, $this->startsAt, $this->endsAt, $this->title, $reference ?? $this->reference, $status ?? $this->status, $present ?? $this->present);
@@ -50,6 +54,6 @@ final readonly class Meeting
     /** The gateway's reference, which only an opened meeting has. */
     public function reference(): string
     {
-        return $this->isOpened() ? $this->reference : throw new InvalidConfigException(\sprintf('The meeting "%s" is not opened on a gateway yet: open() gives its reference.', $this->key));
+        return null !== $this->reference && '' !== $this->reference ? $this->reference : throw new InvalidConfigException(\sprintf('The meeting "%s" is not opened on a gateway yet: open() gives its reference.', $this->key));
     }
 }

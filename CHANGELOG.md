@@ -24,6 +24,11 @@
   checkout (`OMNISENSE_CONTRACTS`) or GitHub and runs its tests, names its entrypoint and uses
   Docker's default bridge.
 
+### Changed
+
+- PHPStan at level max with an empty baseline: types only (`Meeting::with()`'s `$present` a
+  `list<Participant>`, the tests' reads narrowed), no behaviour changed.
+
 ### Fixed
 
 - The models' constructors throw an `InvalidModelException` (an `OmnimeetException`, and an

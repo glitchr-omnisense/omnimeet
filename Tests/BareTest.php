@@ -28,14 +28,18 @@ final class BareTest extends TestCase
         [$status, $report] = self::php([__DIR__.'/../docker/harness/bin/bare', '--json']);
 
         self::assertSame(0, $status);
-        self::assertContains(Registry::class, $report['symbols'], 'the registry was built there');
+        self::assertContains(Registry::class, self::strings($report, 'symbols'), 'the registry was built there');
         self::assertSame([], self::framework($report), 'no class nor file of a framework');
-        self::assertSame([], array_values(preg_grep('~^Symfony\\\\(?!Polyfill)~', $report['symbols'])), 'nothing of Symfony at all: no gateway calls anything');
-        $installed = array_values(array_filter(array_column(require __DIR__.'/../docker/harness/plugins.php', 1), 'class_exists'));
+        self::assertSame([], self::grep('~^Symfony\\\\(?!Polyfill)~', self::strings($report, 'symbols')), 'nothing of Symfony at all: no gateway calls anything');
+        $plugins = require __DIR__.'/../docker/harness/plugins.php';
+        self::assertIsArray($plugins);
+        $installed = array_values(array_filter(array_column($plugins, 1), static fn (mixed $factory): bool => \is_string($factory) && class_exists($factory)));
         foreach ($installed as $factory) {
-            self::assertContains($factory, $report['symbols'], 'every gateway package installed, its factory built');
+            self::assertContains($factory, self::strings($report, 'symbols'), 'every gateway package installed, its factory built');
         }
-        self::assertCount(\count($installed), $report['gateways']);
+        $gateways = self::at($report, 'gateways');
+        self::assertIsArray($gateways);
+        self::assertCount(\count($installed), $gateways);
     }
 
     public function testAMeetingIsHeldFromBrowserToBrowserWithNoClassOfAFrameworkLoaded(): void
@@ -46,15 +50,15 @@ final class BareTest extends TestCase
         [$status, $report] = self::php([__DIR__.'/../docker/harness/bin/bare', '--json'], ['TURN_SECRET' => '', 'TURN_URLS' => '', 'STUN_URLS' => '']);
 
         self::assertSame(0, $status);
-        self::assertSame(['open', 'join', 'close', 'fetch'], $report['gateways']['direct']['does'], 'no callbacks: nobody to send any');
-        self::assertSame([2, false, true, false], [$report['gateways']['direct']['maxParticipants'], $report['gateways']['direct']['thirdParty'], $report['gateways']['direct']['endToEnd'], $report['gateways']['direct']['recording']]);
-        self::assertSame(['kind' => 'engine', 'engine' => 'direct', 'script' => 'visio.js', 'role' => 'host', 'ice_servers' => 0, 'third_party' => false], $report['direct']['access'], 'the engine\'s file is in the package; no relay configured, no STUN of someone else\'s');
-        self::assertSame('guest', $report['direct']['guest_role']);
-        self::assertSame(['hello'], $report['direct']['host_heard'], 'one does not hear oneself');
-        self::assertSame(['offer', 'candidate'], $report['direct']['guest_heard'], 'in the order they were sent');
-        self::assertTrue($report['direct']['connects']);
-        self::assertSame(['live', ['u2', 'u1']], [$report['direct']['status'], $report['direct']['present']]);
-        self::assertSame(['ended', 0], [$report['direct']['closed'], $report['direct']['left_in_store']], 'closing purges the handshake');
+        self::assertSame(['open', 'join', 'close', 'fetch'], self::at($report, 'gateways', 'direct', 'does'), 'no callbacks: nobody to send any');
+        self::assertSame([2, false, true, false], [self::at($report, 'gateways', 'direct', 'maxParticipants'), self::at($report, 'gateways', 'direct', 'thirdParty'), self::at($report, 'gateways', 'direct', 'endToEnd'), self::at($report, 'gateways', 'direct', 'recording')]);
+        self::assertSame(['kind' => 'engine', 'engine' => 'direct', 'script' => 'visio.js', 'role' => 'host', 'ice_servers' => 0, 'third_party' => false], self::at($report, 'direct', 'access'), 'the engine\'s file is in the package; no relay configured, no STUN of someone else\'s');
+        self::assertSame('guest', self::at($report, 'direct', 'guest_role'));
+        self::assertSame(['hello'], self::at($report, 'direct', 'host_heard'), 'one does not hear oneself');
+        self::assertSame(['offer', 'candidate'], self::at($report, 'direct', 'guest_heard'), 'in the order they were sent');
+        self::assertTrue(self::at($report, 'direct', 'connects'));
+        self::assertSame(['live', ['u2', 'u1']], [self::at($report, 'direct', 'status'), self::at($report, 'direct', 'present')]);
+        self::assertSame(['ended', 0], [self::at($report, 'direct', 'closed'), self::at($report, 'direct', 'left_in_store')], 'closing purges the handshake');
         self::assertSame([], self::framework($report), 'no class nor file of a framework');
     }
 
@@ -66,14 +70,16 @@ final class BareTest extends TestCase
         [$status, $report] = self::php([__DIR__.'/../docker/harness/bin/bare', '--json'], ['JITSI_DOMAIN' => '']);
 
         self::assertSame(0, $status);
-        self::assertTrue($report['gateways']['jitsi']['example'], 'no instance in the environment: the example one, which nothing calls');
-        self::assertSame(['open', 'join'], $report['gateways']['jitsi']['does'], 'what Jitsi\'s documentation does not show is not done');
-        self::assertTrue($report['gateways']['jitsi']['thirdParty']);
-        self::assertMatchesRegularExpression('~^[0-9a-f]{32}$~', $report['jitsi']['reference']);
-        self::assertTrue($report['jitsi']['same_again'], 'the same key, the same room');
-        self::assertSame('https://meet.example.org/'.$report['jitsi']['reference'], $report['jitsi']['access']['url']);
-        self::assertSame(['frame', 'jitsi', 'jitsi.js', 'https://meet.example.org/external_api.js', ['https://meet.example.org'], true], [$report['jitsi']['access']['kind'], $report['jitsi']['access']['engine'], $report['jitsi']['access']['script'], $report['jitsi']['access']['api'], $report['jitsi']['access']['origins'], $report['jitsi']['access']['third_party']]);
-        self::assertSame(['room' => $report['jitsi']['reference'], 'user' => ['id' => 'u1', 'name' => 'Dr Claire Tilleul'], 'expires_after_the_end' => true], $report['jitsi']['token']);
+        self::assertTrue(self::at($report, 'gateways', 'jitsi', 'example'), 'no instance in the environment: the example one, which nothing calls');
+        self::assertSame(['open', 'join'], self::at($report, 'gateways', 'jitsi', 'does'), 'what Jitsi\'s documentation does not show is not done');
+        self::assertTrue(self::at($report, 'gateways', 'jitsi', 'thirdParty'));
+        $reference = self::at($report, 'jitsi', 'reference');
+        self::assertIsString($reference);
+        self::assertMatchesRegularExpression('~^[0-9a-f]{32}$~', $reference);
+        self::assertTrue(self::at($report, 'jitsi', 'same_again'), 'the same key, the same room');
+        self::assertSame('https://meet.example.org/'.$reference, self::at($report, 'jitsi', 'access', 'url'));
+        self::assertSame(['frame', 'jitsi', 'jitsi.js', 'https://meet.example.org/external_api.js', ['https://meet.example.org'], true], [self::at($report, 'jitsi', 'access', 'kind'), self::at($report, 'jitsi', 'access', 'engine'), self::at($report, 'jitsi', 'access', 'script'), self::at($report, 'jitsi', 'access', 'api'), self::at($report, 'jitsi', 'access', 'origins'), self::at($report, 'jitsi', 'access', 'third_party')]);
+        self::assertSame(['room' => $reference, 'user' => ['id' => 'u1', 'name' => 'Dr Claire Tilleul'], 'expires_after_the_end' => true], self::at($report, 'jitsi', 'token'));
         self::assertSame([], self::framework($report), 'no class nor file of a framework');
     }
 
@@ -88,17 +94,64 @@ final class BareTest extends TestCase
         self::assertSame(0, $status);
         $framework = self::framework($report);
         self::assertContains(AbstractBundle::class, $framework);
-        self::assertNotEmpty(preg_grep('~/symfony/http-kernel/~', $framework));
+        self::assertNotEmpty(self::grep('~/symfony/http-kernel/~', $framework));
     }
 
     /**
-     * @param array{symbols: list<string>, files: list<string>} $report
+     * @param array<mixed> $report
      *
      * @return list<string> the classes, interfaces, traits and files of a framework among those loaded
      */
     private static function framework(array $report): array
     {
-        return [...array_values(preg_grep(self::FRAMEWORK, $report['symbols'])), ...array_values(preg_grep(self::FRAMEWORK_FILES, $report['files']))];
+        return [...self::grep(self::FRAMEWORK, self::strings($report, 'symbols')), ...self::grep(self::FRAMEWORK_FILES, self::strings($report, 'files'))];
+    }
+
+    /**
+     * A value of the report, down its keys.
+     *
+     * @param array<mixed> $report
+     */
+    private static function at(array $report, string ...$keys): mixed
+    {
+        $value = $report;
+        foreach ($keys as $key) {
+            self::assertIsArray($value);
+            self::assertArrayHasKey($key, $value);
+            $value = $value[$key];
+        }
+
+        return $value;
+    }
+
+    /**
+     * A list of names in the report: "symbols", "files".
+     *
+     * @param array<mixed> $report
+     *
+     * @return list<string>
+     */
+    private static function strings(array $report, string $key): array
+    {
+        $value = self::at($report, $key);
+        self::assertIsList($value);
+        $list = [];
+        foreach ($value as $one) {
+            self::assertIsString($one);
+            $list[] = $one;
+        }
+
+        return $list;
+    }
+
+    /**
+     * @param list<string> $list
+     *
+     * @return list<string> those matching
+     */
+    private static function grep(string $pattern, array $list): array
+    {
+        return array_values(array_filter($list, static fn (string $one): bool => 1 === preg_match($pattern, $one)));
     }
 
     /**
@@ -107,7 +160,7 @@ final class BareTest extends TestCase
      * @param list<string>          $arguments
      * @param array<string, string> $env
      *
-     * @return array{int, array<string, mixed>} the exit status, the JSON printed
+     * @return array{int, array<mixed>} the exit status, the JSON printed
      */
     private static function php(array $arguments, array $env = []): array
     {

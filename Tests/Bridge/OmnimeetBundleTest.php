@@ -23,7 +23,9 @@ final class OmnimeetBundleTest extends TestCase
         $container->register(StubFactory::class)->setAutoconfigured(true);
         $container->register(Practice::class)->setAutowired(true)->setPublic(true);
         $bundle = new OmnimeetBundle();
-        $container->registerExtension($bundle->getContainerExtension());
+        $extension = $bundle->getContainerExtension();
+        self::assertNotNull($extension);
+        $container->registerExtension($extension);
         $container->loadFromExtension('omnimeet', ['gateways' => [
             'consultation' => ['factory' => 'stub', 'options' => ['host' => 'meet.example.org']],
             'staff' => ['factory' => 'stub', 'options' => ['host' => 'staff.example.org']],
@@ -31,12 +33,14 @@ final class OmnimeetBundleTest extends TestCase
         $container->compile();
 
         $registry = $container->get(Registry::class);
+        self::assertInstanceOf(Registry::class, $registry);
         self::assertSame(['consultation', 'staff'], array_keys($registry->all()));
 
         $practice = $container->get(Practice::class);
+        self::assertInstanceOf(Practice::class, $practice);
         $meeting = $practice->consultation->open(new Meeting('k'));
-        self::assertStringStartsWith('https://meet.example.org/', $practice->consultation->join($meeting, Participant::guest('u2'))->url, 'injected by its name');
-        self::assertStringStartsWith('https://staff.example.org/', $practice->staff->join($meeting, Participant::guest('u2'))->url);
+        self::assertStringStartsWith('https://meet.example.org/', (string) $practice->consultation->join($meeting, Participant::guest('u2'))->url, 'injected by its name');
+        self::assertStringStartsWith('https://staff.example.org/', (string) $practice->staff->join($meeting, Participant::guest('u2'))->url);
     }
 
     public function testAFactoryIsGivenWhatItsConstructorAsksOfTheApplication(): void
@@ -49,13 +53,17 @@ final class OmnimeetBundleTest extends TestCase
         $container->register(InMemorySignalStore::class)->setPublic(true);
         $container->setAlias(SignalStoreInterface::class, InMemorySignalStore::class);
         $bundle = new OmnimeetBundle();
-        $container->registerExtension($bundle->getContainerExtension());
+        $extension = $bundle->getContainerExtension();
+        self::assertNotNull($extension);
+        $container->registerExtension($extension);
         $container->loadFromExtension('omnimeet', ['gateways' => ['direct' => ['factory' => 'direct']]]);
         $container->compile();
 
         $registry = $container->get(Registry::class);
+        self::assertInstanceOf(Registry::class, $registry);
         self::assertContains('direct', $registry->factories(), 'the gateway packages installed are registered');
         $store = $container->get(InMemorySignalStore::class);
+        self::assertInstanceOf(InMemorySignalStore::class, $store);
         $store->append('k', 'u1', 'hello', 'null');
 
         $registry->get('direct')->close($registry->get('direct')->open(new Meeting('k')));
