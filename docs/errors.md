@@ -51,7 +51,9 @@ provider over the network today, so no other comes from them.
 
 `InvalidNotificationException` (jitsi's `notify()`): no `webhook_secret`; no `X-Jaas-Signature`
 (`t=...,v1=...`); a signature that does not hold; a timestamp further than `webhook_tolerance`
-from now (`The callback is too old.`); a signed body that is not a JaaS event (no `eventType`).
+from now (`The callback is too old.`); a signed body that is not a JaaS event (no `eventType`, or
+one of its fields of another type: `The callback is not a JaaS event: its "fqn" is array, not a
+string.`).
 Answer such a callback with a 4xx.
 
 ## `UsageLimitReachedException`, `InvalidPolicyException`, `UsageNotPermitted`
