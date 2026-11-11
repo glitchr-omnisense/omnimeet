@@ -43,7 +43,7 @@ application's, on its own record of the meeting - the same whatever the gateway.
 | `capabilities(): Capabilities` | what its meetings are ([Models](models.md#capabilities)) |
 | `supports(string $request): bool` | whether an action answers that request class; asked with a probe made without the request's constructor |
 | `execute(Request $request): Request` | the request, answered by the first action that supports it; `NotSupportedException` when none does, `ProviderException` when the action left it unanswered |
-| `open(Meeting): Meeting`, `join(Meeting, Participant): Access`, `close(Meeting): Meeting`, `fetch(Meeting): Meeting`, `notify(string $body, array $headers = []): Notification` | `execute()` with `Request\Open`, `Join`, `Close`, `Fetch`, `Notify` |
+| `open(Meeting): Meeting`, `join(Meeting, Participant): Access`, `close(Meeting): Meeting`, `fetch(Meeting): Meeting`, `notify(string $body, array $headers = []): Notification` | `execute()` with `Request\Open`, `Join`, `Close`, `Fetch`, `Notify`; `ProviderException` when the action answered with something else than the model asked for |
 
 `Omnimeet\Gateway` (`final`) is the implementation every factory builds: a name, a title, the
 capabilities and the actions.

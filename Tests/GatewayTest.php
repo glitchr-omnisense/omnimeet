@@ -2,11 +2,14 @@
 
 namespace Omnimeet\Tests;
 
+use Omnimeet\Action\ActionInterface;
 use Omnimeet\Exception\InvalidConfigException;
 use Omnimeet\Exception\InvalidNotificationException;
 use Omnimeet\Exception\NotSupportedException;
 use Omnimeet\Exception\ProviderException;
+use Omnimeet\Gateway;
 use Omnimeet\Model\AccessKind;
+use Omnimeet\Model\Capabilities;
 use Omnimeet\Model\Event;
 use Omnimeet\Model\Meeting;
 use Omnimeet\Model\Participant;
@@ -16,6 +19,7 @@ use Omnimeet\Request\Fetch;
 use Omnimeet\Request\Join;
 use Omnimeet\Request\Notify;
 use Omnimeet\Request\Open;
+use Omnimeet\Request\Request;
 use PHPUnit\Framework\TestCase;
 
 /** A gateway is its actions behind one door: open, join, close, fetch, notify. */
@@ -106,6 +110,49 @@ final class GatewayTest extends TestCase
         $this->expectException(ProviderException::class);
         $this->expectExceptionMessage('[stub] Omnimeet\Tests\MuteAction left the request unanswered.');
         $gateway->execute(new Mute());
+    }
+
+    /**
+     * An answer that is not what the request asks for - nothing, an array,
+     * a string - is never handed back as a meeting opened, an access or a
+     * notification: the gateway says so, as for a request left unanswered.
+     */
+    public function testAnActionThatAnswersWithSomethingElseIsAnError(): void
+    {
+        $meeting = new Meeting('k', reference: 'room-1', status: Status::OPEN);
+        $calls = [
+            'Open' => static fn (Gateway $g) => $g->open(new Meeting('k')),
+            'Join' => static fn (Gateway $g) => $g->join($meeting, Participant::guest('u')),
+            'Close' => static fn (Gateway $g) => $g->close($meeting),
+            'Fetch' => static fn (Gateway $g) => $g->fetch($meeting),
+            'Notify' => static fn (Gateway $g) => $g->notify('{}'),
+        ];
+        foreach ([null, ['url' => 'https://meet.example.org/room-1'], 'room-1'] as $answer) {
+            $gateway = new Gateway('stub', 'Stub', new Capabilities(), [new class($answer) implements ActionInterface {
+                public function __construct(private readonly mixed $answer)
+                {
+                }
+
+                public function supports(Request $request): bool
+                {
+                    return true;
+                }
+
+                public function execute(Request $request): void
+                {
+                    $request->setResult($this->answer);
+                }
+            }]);
+            foreach ($calls as $request => $call) {
+                try {
+                    $call($gateway);
+                    self::fail($request.' answered with '.get_debug_type($answer).' was taken as made.');
+                } catch (ProviderException $e) {
+                    self::assertSame('stub', $e->provider);
+                    self::assertStringStartsWith('[stub] '.$request.' was answered with '.get_debug_type($answer).', not ', $e->getMessage());
+                }
+            }
+        }
     }
 
     public function testAnOptionMissingIsSaidWhenTheGatewayIsBuilt(): void

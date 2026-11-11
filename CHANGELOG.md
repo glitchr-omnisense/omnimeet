@@ -30,3 +30,8 @@
   `\InvalidArgumentException` as before) for a meeting without a key or ending before it starts, a
   participant without an identifier, an access without its script or its address: a
   `catch (OmnimeetException)` missed the plain `\InvalidArgumentException`.
+- `Gateway::open()`, `join()`, `close()`, `fetch()` and `notify()` throw a `ProviderException`
+  ("Open was answered with null, not Omnimeet\Model\Meeting.") when an action answers with nothing
+  or with something else than the request asks for, where a `TypeError` came out; the requests'
+  getters (`getMeeting()`, `getAccess()`, `getNotification()`) give null for an answer of another
+  type instead of a `TypeError`.

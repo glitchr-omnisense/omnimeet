@@ -44,7 +44,10 @@ supports; `supports()` says it beforehand:
 ## `ProviderException` and `InvalidNotificationException`
 
 `ProviderException` is thrown by `Gateway::execute()` for an action that left its request
-unanswered. Neither gateway calls a provider over the network today, so no other comes from them.
+unanswered, and by `open()`, `join()`, `close()`, `fetch()` and `notify()` for an action that
+answered with nothing or with something else than the request asks for ("Open was answered with
+null, not Omnimeet\Model\Meeting."): never taken for a meeting opened. Neither gateway calls a
+provider over the network today, so no other comes from them.
 
 `InvalidNotificationException` (jitsi's `notify()`): no `webhook_secret`; no `X-Jaas-Signature`
 (`t=...,v1=...`); a signature that does not hold; a timestamp further than `webhook_tolerance`

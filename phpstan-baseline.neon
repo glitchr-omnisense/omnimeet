@@ -7,36 +7,6 @@ parameters:
 			path: Bridge/Symfony/OmnimeetBundle.php
 
 		-
-			message: '#^Method Omnimeet\\Gateway\:\:close\(\) should return Omnimeet\\Model\\Meeting but returns Omnimeet\\Model\\Meeting\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: Gateway.php
-
-		-
-			message: '#^Method Omnimeet\\Gateway\:\:fetch\(\) should return Omnimeet\\Model\\Meeting but returns Omnimeet\\Model\\Meeting\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: Gateway.php
-
-		-
-			message: '#^Method Omnimeet\\Gateway\:\:join\(\) should return Omnimeet\\Model\\Access but returns Omnimeet\\Model\\Access\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: Gateway.php
-
-		-
-			message: '#^Method Omnimeet\\Gateway\:\:notify\(\) should return Omnimeet\\Model\\Notification but returns Omnimeet\\Model\\Notification\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: Gateway.php
-
-		-
-			message: '#^Method Omnimeet\\Gateway\:\:open\(\) should return Omnimeet\\Model\\Meeting but returns Omnimeet\\Model\\Meeting\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: Gateway.php
-
-		-
 			message: '#^Method Omnimeet\\Model\\Meeting\:\:reference\(\) should return string but returns string\|null\.$#'
 			identifier: return.type
 			count: 1
@@ -53,36 +23,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: Model/Meeting.php
-
-		-
-			message: '#^Method Omnimeet\\Request\\Close\:\:getMeeting\(\) should return Omnimeet\\Model\\Meeting\|null but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: Request/Close.php
-
-		-
-			message: '#^Method Omnimeet\\Request\\Fetch\:\:getMeeting\(\) should return Omnimeet\\Model\\Meeting\|null but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: Request/Fetch.php
-
-		-
-			message: '#^Method Omnimeet\\Request\\Join\:\:getAccess\(\) should return Omnimeet\\Model\\Access\|null but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: Request/Join.php
-
-		-
-			message: '#^Method Omnimeet\\Request\\Notify\:\:getNotification\(\) should return Omnimeet\\Model\\Notification\|null but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: Request/Notify.php
-
-		-
-			message: '#^Method Omnimeet\\Request\\Open\:\:getMeeting\(\) should return Omnimeet\\Model\\Meeting\|null but returns mixed\.$#'
-			identifier: return.type
-			count: 1
-			path: Request/Open.php
 
 		-
 			message: '#^Binary operation "\." between ''https\://meet…'' and mixed results in an error\.$#'

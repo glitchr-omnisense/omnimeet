@@ -120,27 +120,37 @@ final class Gateway implements GatewayInterface, DeclaresUsagePolicyInterface
 
     public function open(Meeting $meeting): Meeting
     {
-        return $this->execute(new Request\Open($meeting))->getMeeting();
+        $request = $this->execute(new Request\Open($meeting));
+
+        return $request->getMeeting() ?? throw $this->answeredWithSomethingElse($request, Meeting::class);
     }
 
     public function join(Meeting $meeting, Participant $participant): Access
     {
-        return $this->execute(new Request\Join($meeting, $participant))->getAccess();
+        $request = $this->execute(new Request\Join($meeting, $participant));
+
+        return $request->getAccess() ?? throw $this->answeredWithSomethingElse($request, Access::class);
     }
 
     public function close(Meeting $meeting): Meeting
     {
-        return $this->execute(new Request\Close($meeting))->getMeeting();
+        $request = $this->execute(new Request\Close($meeting));
+
+        return $request->getMeeting() ?? throw $this->answeredWithSomethingElse($request, Meeting::class);
     }
 
     public function fetch(Meeting $meeting): Meeting
     {
-        return $this->execute(new Request\Fetch($meeting))->getMeeting();
+        $request = $this->execute(new Request\Fetch($meeting));
+
+        return $request->getMeeting() ?? throw $this->answeredWithSomethingElse($request, Meeting::class);
     }
 
     public function notify(string $body, array $headers = []): Notification
     {
-        return $this->execute(new Request\Notify($body, $headers))->getNotification();
+        $request = $this->execute(new Request\Notify($body, $headers));
+
+        return $request->getNotification() ?? throw $this->answeredWithSomethingElse($request, Notification::class);
     }
 
     /**
@@ -164,5 +174,16 @@ final class Gateway implements GatewayInterface, DeclaresUsagePolicyInterface
         }
 
         throw NotSupportedException::for($request, $this->name);
+    }
+
+    /**
+     * An action answered, but not with what the request asks for: never handed
+     * back as a meeting opened, an access or a notification.
+     *
+     * @param class-string $expected
+     */
+    private function answeredWithSomethingElse(Request\Request $request, string $expected): ProviderException
+    {
+        return new ProviderException($this->name, \sprintf('%s was answered with %s, not %s.', (new \ReflectionClass($request))->getShortName(), get_debug_type($request->getResult()), $expected));
     }
 }

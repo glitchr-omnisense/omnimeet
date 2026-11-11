@@ -18,8 +18,11 @@ final class Join extends Request
     {
     }
 
+    /** The answer, when it is one: null for none or for anything else. */
     public function getAccess(): ?Access
     {
-        return $this->getResult();
+        $result = $this->getResult();
+
+        return $result instanceof Access ? $result : null;
     }
 }
