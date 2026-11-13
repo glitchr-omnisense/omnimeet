@@ -61,17 +61,40 @@ call.
 - [The Docker harness: the console, bare PHP, the demo](docs/harness.md)
 - [Verified, and not](docs/verified.md)
 
-## Plain PHP
+## Plain PHP: install and a first call
 
 ```sh
-composer require omnisense/omnimeet omnimeet/direct omnimeet/jitsi
+composer require omnisense/omnimeet omnimeet/direct
 ```
 
 ```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
 use Omnimeet\Direct\DirectGatewayFactory;
-use Omnimeet\Jitsi\JitsiGatewayFactory;
+use Omnimeet\Direct\InMemorySignalStore;
+use Omnimeet\Model\Meeting;
+use Omnimeet\Model\Participant;
 use Omnimeet\Registry;
 
+$registry = new Registry([new DirectGatewayFactory(new InMemorySignalStore())], [
+    'direct' => ['factory' => 'direct', 'options' => ['turn_secret' => 'the-relay-s-secret', 'turn_urls' => ['turn:turn.example.org:3478']]],
+]);
+$gateway = $registry->get('direct');
+$meeting = $gateway->open(new Meeting(bin2hex(random_bytes(16)), new DateTimeImmutable('+5 minutes'), new DateTimeImmutable('+35 minutes')));
+$access = $gateway->join($meeting, Participant::host('u42', 'Ada', 'en'));
+echo $access->kind->name, ': run ', basename((string) $access->script), ' in room ', $access->options['room'], "\n";
+// ENGINE: run visio.js in room d9ab80f93063685d8b1b41eb74525232
+```
+
+No account, no key, no request: a direct meeting is carried by the two browsers (the page runs the
+engine, `visio.js`), and the gateway calls nothing. A real call between two people on different
+networks needs a TURN relay of one's own (coturn's `use-auth-secret`: its secret and address in the
+options above). `omnimeet/jitsi` needs a Jitsi Meet instance (its domain, and its app id and secret
+when it asks for tokens) or a Jitsi as a Service account:
+
+```php
 $registry = new Registry([new DirectGatewayFactory($signalStore), new JitsiGatewayFactory()], [
     'direct' => ['factory' => 'direct', 'options' => ['turn_secret' => '...', 'turn_urls' => ['turn:turn.example.org:3478']]],
     'group' => ['factory' => 'jitsi', 'options' => ['domain' => 'meet.example.org']],
@@ -79,7 +102,8 @@ $registry = new Registry([new DirectGatewayFactory($signalStore), new JitsiGatew
 ```
 
 No bundle, no container: a factory per gateway package, the registry built by hand.
-[docs/installation.md](docs/installation.md) opens on a whole script that runs as it is.
+[docs/installation.md](docs/installation.md) opens on a whole script that runs as it is, both
+gateways in it.
 
 ## Symfony
 
